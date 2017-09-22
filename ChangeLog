@@ -1,5 +1,9 @@
 = PDF::Writer Change Log
 
+== PDF::Writer 1.3.0: September 22, 2017
+* Ruby 2 compatibility. (not checked with other than .jpg images)
+
+
 == PDF::Writer 1.2.1: May 13, 2009
 * Ruby 1.9 compatibility.
 

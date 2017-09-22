@@ -1,13 +1,13 @@
 Gem::Specification.new do |s|
   s.name     = "pdf-writer"
-  s.version  = "1.2.3"
+  s.version  = "1.3.0"
   s.date     = "2009-05-19"
   s.summary  = "A pure Ruby PDF document creation library."
   s.email    = "ken@metaskills.net"
   s.homepage = "http://github.com/metaskills/pdf-writer/"
   s.description = "A pure Ruby PDF document creation library."
   s.has_rdoc = true
-  s.authors  = ["Austin Ziegler","Ken Collins"]
+  s.authors  = ["Austin Ziegler","Ken Collins", "Dmitri Koulikov"]
   s.autorequire       = ["pdf/writer"]
   s.require_paths     = ["lib"]
   s.bindir            = "bin"

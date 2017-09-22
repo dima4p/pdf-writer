@@ -47,8 +47,14 @@ class PDF::Writer::Graphics::ImageInfo
     alias :type_list :formats
   end
 
-  JPEG_SOF_BLOCKS = %W(\xc0 \xc1 \xc2 \xc3 \xc5 \xc6 \xc7 \xc9 \xca \xcb \xcd \xce \xcf)
-  JPEG_APP_BLOCKS = %W(\xe0 \xe1 \xe2 \xe3 \xe4 \xe5 \xe6 \xe7 \xe8 \xe9 \xea \xeb \xec \xed \xee \xef)
+  JPEG_SOF_BLOCKS =
+      %W(\xc0 \xc1 \xc2 \xc3 \xc5 \xc6 \xc7 \xc9 \xca \xcb \xcd \xce \xcf).map do |c|
+    c.force_encoding('ASCII-8BIT')
+  end
+  JPEG_APP_BLOCKS =
+      %W(\xe0 \xe1 \xe2 \xe3 \xe4 \xe5 \xe6 \xe7 \xe8 \xe9 \xea \xeb \xec \xed \xee \xef).map do |c|
+    c.force_encoding('ASCII-8BIT')
+  end
 
     # Receive image & make size. argument is image String or IO
   def initialize(data, format = nil)
@@ -102,9 +108,9 @@ class PDF::Writer::Graphics::ImageInfo
   def discover_format
     if    @top        =~ %r{^GIF8[79]a}
       Formats::GIF
-    elsif @top[0, 3]  == "\xff\xd8\xff"
+    elsif @top[0, 3]  == "\xff\xd8\xff".force_encoding('ASCII-8BIT')
       Formats::JPEG
-    elsif @top[0, 8]  == "\x89PNG\x0d\x0a\x1a\x0a"
+    elsif @top[0, 8]  == "\x89PNG\x0d\x0a\x1a\x0a".force_encoding('ASCII-8BIT')
       Formats::PNG
     elsif @top[0, 3]  == "FWS"
       Formats::SWF
@@ -112,11 +118,11 @@ class PDF::Writer::Graphics::ImageInfo
       Formats::PSD
     elsif @top[0, 2]  == 'BM'
       Formats::BMP
-    elsif @top[0, 4]  == "MM\x00\x2a"
+    elsif @top[0, 4]  == "MM\x00\x2a".force_encoding('ASCII-8BIT')
       Formats::TIFF
-    elsif @top[0, 4]  == "II\x2a\x00"
+    elsif @top[0, 4]  == "II\x2a\x00".force_encoding('ASCII-8BIT')
       Formats::TIFF
-    elsif @top[0, 12] == "\x00\x00\x00\x0c\x6a\x50\x20\x20\x0d\x0a\x87\x0a"
+    elsif @top[0, 12] == "\x00\x00\x00\x0c\x6a\x50\x20\x20\x0d\x0a\x87\x0a".force_encoding('ASCII-8BIT')
       Formats::JP2
     elsif @top        =~ %r{^P[1-7]}
       Formats::PPM
@@ -169,11 +175,11 @@ class PDF::Writer::Graphics::ImageInfo
   private :measure_PNG
 
   def measure_JPEG
-    c_marker = "\xff" # Section marker.
+    c_marker = "\xff".force_encoding('ASCII-8BIT') # Section marker.
     @data.read_o(2)   # Skip the first two bytes of JPEG identifier.
     loop do
       marker, code, length = @data.read_o(4).unpack('aan')
-      raise "JPEG marker not found!" if marker != c_marker
+      raise "JPEG marker not found! @ #{@data.offset}" if marker != c_marker
 
       if JPEG_SOF_BLOCKS.include?(code)
         @bits, @height, @width, @channels = @data.read_o(6).unpack("CnnC")
@@ -296,7 +302,7 @@ class PDF::Writer::Graphics::ImageInfo
   def measure_TIFF
       # 'v' little-endian
       # 'n' default to big-endian
-    endian = (@data.read_o(4) =~ /II\x2a\x00/o) ? 'v' : 'n'
+    endian = (@data.read_o(4) =~ /II#{"\x2a\x00".force_encoding('ASCII-8BIT')}/o) ? 'v' : 'n'
 
 		packspec = [
 			nil,           # nothing (shouldn't happen)
